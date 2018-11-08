@@ -1,0 +1,15 @@
+{
+  "name": "int_table",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "snapshot.mode": "never",
+    "tombstones.on.delete" : "false",
+    "database.hostname": "pg",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "pwd",
+    "database.dbname" : "postgres",
+    "database.server.name": "int_table",
+    "table.whitelist": "public.int_table"
+  }
+}

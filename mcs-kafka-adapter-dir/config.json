@@ -1,0 +1,15 @@
+{
+    "options" : {
+        "broker"   : "kafka:9092",
+        "registry" : "schema:8081",
+        "config" : "/etc/mcs-kafka-adapter/Columnstore.xml",
+        "group" : "2"
+    },
+    "streams" : [
+        {
+            "topic" : "int_table.public.int_table",
+            "database" : "test",
+            "table" : "int_table"
+        }
+    ]
+}

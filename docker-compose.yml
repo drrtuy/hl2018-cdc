@@ -1,0 +1,85 @@
+version: "3"
+services:
+  zk:
+    image: debezium/zookeeper:0.8
+    volumes:
+      - gitlocal:/gitlocal
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    volumes:
+      - zk:/zookeeper/data
+  kafka:
+    image: debezium/kafka:0.8
+    environment:
+        - ZOOKEEPER_CONNECT=zk:2181
+    volumes:
+      - dblocal:/var/lib/postgresql/data
+    ports:
+      - "9092:9092"
+    links:
+      - zk
+    volumes:
+      - kafka-data:/kafka/data
+      - kafka-config:/kafka/config
+  pg:
+    image: debezium/postgres:10.0
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=pwd
+  connect:
+    image: debezium/connect:0.8
+    environment:
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema:8081
+      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema:8081
+    links:
+        - kafka
+        - pg
+        - zk
+    ports:
+        - "8083:8083"
+    volumes:
+      - /home/drrtuy/git/hl2018-cdc/connect-config-dir:/kafka/config:rw
+  mcs:
+    image:  mariadb/columnstore:latest
+    cap_add:
+        - SYS_PTRACE     
+    environment:
+        - USER=root
+    volumes:
+      - mcs:/usr/local/mariadb/columnstore
+  da:
+    image: drrtuy/kafka-avro-da
+    cap_add:
+        - SYS_PTRACE     
+    environment:
+        - USER=root
+    volumes:
+      - /home/drrtuy/git/hl2018-cdc/mcs-kafka-adapter-dir:/etc/mcs-kafka-adapter:rw
+      - /home/drrtuy/git/hl2018-cdc/scripts:/scripts:ro
+  schema:
+    image: confluentinc/cp-schema-registry
+    ports:
+        - "8081:8081"
+    depends_on:
+        - kafka
+    environment:
+        - SCHEMA_REGISTRY_HOST_NAME=schema
+        - SCHEMA_REGISTRY_DEBUG=true
+        - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zk:2181
+volumes:
+    mysql: 
+    kafka-data:
+    kafka-config:
+    zk:
+    mcs:

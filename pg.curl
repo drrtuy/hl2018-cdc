@@ -1,0 +1,14 @@
+{
+  "name": "events1", 
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "snapshot.mode": "never",
+    "database.hostname": "pg", 
+    "database.port": "5432", 
+    "database.user": "postgres", 
+    "database.password": "pwd", 
+    "database.dbname" : "postgres", 
+    "database.server.name": "accounts", 
+    "table.whitelist": "public.pgbench_accounts" 
+  }
+}
