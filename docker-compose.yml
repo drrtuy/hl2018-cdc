@@ -67,6 +67,8 @@ services:
     volumes:
       - /home/drrtuy/git/hl2018-cdc/mcs-kafka-adapter-dir:/etc/mcs-kafka-adapter:rw
       - /home/drrtuy/git/hl2018-cdc/scripts:/scripts:ro
+    entrypoint:
+      - /usr/local/bin/kafka_to_avro 
   schema:
     image: confluentinc/cp-schema-registry
     ports:
